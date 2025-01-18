@@ -4,9 +4,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
+import { BreadcrumbComponent } from './components/utils/breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-root',
@@ -16,22 +14,19 @@ import { MatDividerModule } from '@angular/material/divider';
     RouterOutlet,
     MatSidenavModule,
     MatToolbarModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    SidebarComponent
+    SidebarComponent,
+    BreadcrumbComponent
   ],
-  template: `    <mat-sidenav-container class="sidenav-container">
+  template: `
+    <mat-sidenav-container class="sidenav-container">
       <mat-sidenav mode="side" opened class="sidenav">
         <app-sidebar></app-sidebar>
       </mat-sidenav>
       <mat-sidenav-content>
         <mat-toolbar color="primary">
-          <span>DSA Visualizer</span>
+          <app-breadcrumb></app-breadcrumb>
         </mat-toolbar>
-        <!-- <div class="content"> -->
-          <router-outlet></router-outlet>
-        <!-- </div> -->
+        <router-outlet></router-outlet>
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
@@ -49,6 +44,4 @@ import { MatDividerModule } from '@angular/material/divider';
     }
   `]
 })
-export class AppComponent {
-  title = 'dsa-visualizer';
-}
+export class AppComponent {}
