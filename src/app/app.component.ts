@@ -29,9 +29,9 @@ import { MatDividerModule } from '@angular/material/divider';
         <mat-toolbar color="primary">
           <span>DSA Visualizer</span>
         </mat-toolbar>
-        <div class="content">
+        <!-- <div class="content"> -->
           <router-outlet></router-outlet>
-        </div>
+        <!-- </div> -->
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,

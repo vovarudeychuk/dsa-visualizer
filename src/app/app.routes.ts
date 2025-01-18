@@ -3,8 +3,8 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: 'arrays-and-hashing',
-    loadComponent: () => import('./components/visualization/arrays-and-hashing/arrays-and-hashing.component')
-      .then(m => m.ArraysAndHashingComponent)
+    loadChildren: () => import('./components/visualization/arrays-and-hashing/arrays-and-hashing.routes')
+      .then(m => m.ARRAYS_AND_HASHING_ROUTES)
   },
   {
     path: 'two-pointers',
