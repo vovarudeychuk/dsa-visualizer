@@ -29,16 +29,35 @@ Output: false
             <input matInput [(ngModel)]="inputArray" placeholder="1,2,3,1">
           </mat-form-field>
           
-          <button mat-raised-button color="primary" (click)="visualize()">
-            Visualize
+          <button mat-raised-button color="primary" 
+                  (click)="togglePlayPause()" 
+                  [disabled]="isPlaying && !isPaused && currentData.length === 0">
+            <mat-icon>{{(!isPlaying || isPaused) ? 'play_arrow' : 'pause'}}</mat-icon>
+            {{(!isPlaying || isPaused) ? 'Play' : 'Pause'}}
           </button>
           
           <button mat-raised-button color="accent" (click)="reset()">
+            <mat-icon>restart_alt</mat-icon>
             Reset
           </button>
         </div>
 
-        <div #visualizationContainer class="visualization-container"></div>
+        <div class="visualization-section">
+          <div #visualizationContainer class="visualization-container"></div>
+          
+          <div class="step-info">
+            <!-- <mat-card>
+              <mat-card-content> -->
+                <div class="step-status">
+                  <strong>Current Step:</strong> {{ currentStep }}
+                </div>
+                <div class="seen-numbers" >
+                  <strong>Numbers seen so far:</strong> [{{ seenNumbers.join(', ') }}]
+                </div>
+              <!-- </mat-card-content>
+            </mat-card> -->
+          </div>
+        </div>
       </div>
 
       <mat-divider></mat-divider>
