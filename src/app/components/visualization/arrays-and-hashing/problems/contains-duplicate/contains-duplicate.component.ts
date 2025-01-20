@@ -65,7 +65,7 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     this.showInitialArray();
   }
 
-  private showInitialArray() {
+  showInitialArray() {
     const numbers = this.inputArray.split(',').map(n => ({
       value: parseInt(n.trim()),
       isDuplicate: false,
