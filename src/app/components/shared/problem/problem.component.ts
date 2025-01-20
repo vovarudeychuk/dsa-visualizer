@@ -11,20 +11,20 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ProblemData } from './problem.interface';
 
 @Component({
-  selector: 'app-problem',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatIconModule,
-    MatExpansionModule,
-    FormsModule
-  ],
-  template: `
+    selector: 'app-problem',
+    standalone: true,
+    imports: [
+        CommonModule,
+        MatCardModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDividerModule,
+        MatIconModule,
+        MatExpansionModule,
+        FormsModule
+    ],
+    template: `
     <div class="container">
       <mat-card class="problem-card">
   
@@ -106,16 +106,16 @@ Output: {{ example.output }}</pre>
       </mat-card>
     </div>
   `,
-  styleUrls: ['./problem.component.scss']
+    styleUrls: ['./problem.component.scss']
 })
 export class ProblemComponent {
-  @Input() problemData!: ProblemData;
-  @Input() inputValue: string = '';
-  @Input() isPlaying: boolean = false;
-  @Input() isPaused: boolean = false;
-  @Input() currentStep: string = '';
-  
-  @Output() onInputChange = new EventEmitter<string>();
-  @Output() onPlay = new EventEmitter<void>();
-  @Output() onReset = new EventEmitter<void>();
+    @Input() problemData!: ProblemData;
+    @Input() inputValue: string = '';
+    @Input() isPlaying: boolean = false;
+    @Input() isPaused: boolean = false;
+    @Input() currentStep: string = '';
+
+    @Output() onInputChange = new EventEmitter<string>();
+    @Output() onPlay = new EventEmitter<void>();
+    @Output() onReset = new EventEmitter<void>();
 } 

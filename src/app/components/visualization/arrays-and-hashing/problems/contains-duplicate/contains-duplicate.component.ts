@@ -55,7 +55,6 @@ interface ArrayElement {
       </div>
     </app-problem>
   `,
-  styleUrls: ['./contains-duplicate.component.scss']
 })
 export class ContainsDuplicateComponent implements AfterViewInit {
   @ViewChild('visualizationContainer') private visualizationContainer!: ElementRef;
