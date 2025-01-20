@@ -1,0 +1,85 @@
+.container {
+  padding: 20px;
+}
+
+.problem-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.problem-description {
+  margin-bottom: 24px;
+}
+
+pre {
+  padding: 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.solution-workspace {
+  margin: 24px 0;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.visualization-section {
+  margin: 20px 0;
+}
+
+.visualization-container {
+  height: 200px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.step-info {
+  margin-top: 16px;
+
+  .step-status {
+    margin-bottom: 8px;
+  }
+}
+
+.solution-explanation {
+  margin: 24px 0;
+  
+  .code-block {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: 4px;
+    margin: 16px 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .explanation-steps {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+  }
+}
+
+mat-accordion {
+  display: block;
+  margin: 24px 0;
+} 

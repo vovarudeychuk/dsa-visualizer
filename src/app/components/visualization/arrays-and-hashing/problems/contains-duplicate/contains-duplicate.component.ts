@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,8 @@ import * as d3 from 'd3';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { ProblemComponent } from '../../../../shared/problem/problem.component';
+import { ProblemData } from '../../../../shared/problem/problem.interface';
 
 interface ArrayElement {
   value: number;
@@ -28,26 +30,51 @@ interface ArrayElement {
     MatDividerModule,
     MatIconModule,
     FormsModule,
-    MatExpansionModule
+    MatExpansionModule,
+    ProblemComponent
   ],
-  templateUrl: './contains-duplicate.component.html',
+  template: `
+    <app-problem
+      [problemData]="problemData"
+      [inputValue]="inputArray"
+      [isPlaying]="isPlaying"
+      [isPaused]="isPaused"
+      [currentStep]="currentStep"
+      (onInputChange)="onInputChange($event)"
+      (onPlay)="togglePlayPause()"
+      (onReset)="reset()">
+      
+      <div visualization>
+        <div #visualizationContainer></div>
+      </div>
+
+      <div step-info>
+        <div class="seen-numbers" *ngIf="seenNumbers.length > 0">
+          <strong>Numbers seen so far:</strong> [{{ seenNumbers.join(', ') }}]
+        </div>
+      </div>
+    </app-problem>
+  `,
   styleUrls: ['./contains-duplicate.component.scss']
 })
 export class ContainsDuplicateComponent implements AfterViewInit {
   @ViewChild('visualizationContainer') private visualizationContainer!: ElementRef;
   
-  inputArray: string = '1,2,3,12,14,4,6,8,1';
-  private svg: any;
-  currentData: ArrayElement[] = [];
-  isPlaying: boolean = false;
-  isPaused: boolean = false;
-  private animationSpeed: number = 1000; // 1 second delay
-  
-  // Add status message
-  currentStep: string = 'Initial array loaded';
-  seenNumbers: number[] = [];
-
-  readonly solutionCode = `const containsDuplicate = (nums) => {
+  problemData: ProblemData = {
+    title: 'Contains Duplicate',
+    inputLabel: 'Enter array (comma-separated)',
+    description: 'Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.',
+    examples: [
+      {
+        input: 'nums = [1,2,3,1]',
+        output: 'true'
+      },
+      {
+        input: 'nums = [1,2,3,4]',
+        output: 'false'
+      }
+    ],
+    solutionCode: `const containsDuplicate = (nums) => {
     const seen = new Set()
 
     for (const num of nums) {
@@ -58,27 +85,35 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     }
 
     return false  // No duplicates found
-}`;
+}`,
+    timeComplexity: 'O(n) - We only need to traverse the array once',
+    spaceComplexity: 'O(n) - In the worst case, we might need to store all elements in the set',
+    explanationSteps: [
+      'Create an empty HashSet to store numbers we\'ve seen',
+      'Iterate through each number in the array',
+      'For each number, check if we\'ve seen it before (is it in the set?)',
+      'If we have seen it, we found a duplicate - return true',
+      'If we haven\'t seen it, add it to our set',
+      'If we complete the loop without finding duplicates, return false'
+    ]
+  };
+
+  inputArray: string = '1,2,3,1';
+  private svg: any;
+  currentData: ArrayElement[] = [];
+  isPlaying: boolean = false;
+  isPaused: boolean = false;
+  private animationSpeed: number = 1000;
+  currentStep: string = 'Initial array loaded';
+  seenNumbers: number[] = [];
 
   ngAfterViewInit() {
     this.initializeVisualization();
     this.showInitialArray();
   }
 
-  showInitialArray() {
-    const numbers = this.inputArray.split(',').map(n => ({
-      value: parseInt(n.trim()),
-      isDuplicate: false,
-      isChecking: false
-    }));
-
-    this.currentData = numbers;
-    this.currentStep = 'Initial array loaded';
-    this.seenNumbers = [];
-    this.visualizeArray();
-  }
-
-  onInputChange() {
+  onInputChange(value: string) {
+    this.inputArray = value;
     if (!this.isPlaying) {
       this.showInitialArray();
     }
@@ -135,7 +170,7 @@ export class ContainsDuplicateComponent implements AfterViewInit {
 
       seen.add(this.currentData[i].value);
       this.seenNumbers.push(this.currentData[i].value);
-      this.currentStep = `Added ${this.currentData[i].value} to seen numbers: [${this.seenNumbers.join(', ')}]`;
+      this.currentStep = `Added ${this.currentData[i].value} to seen numbers`;
       this.currentData[i].isChecking = false;
       await this.visualizeArray();
     }
@@ -166,11 +201,21 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     this.showInitialArray();
   }
 
-  private initializeVisualization() {
-    // Clear any existing SVG
-    d3.select(this.visualizationContainer.nativeElement).selectAll('*').remove();
+  private showInitialArray() {
+    const numbers = this.inputArray.split(',').map(n => ({
+      value: parseInt(n.trim()),
+      isDuplicate: false,
+      isChecking: false
+    }));
 
-    // Create new SVG
+    this.currentData = numbers;
+    this.currentStep = 'Initial array loaded';
+    this.seenNumbers = [];
+    this.visualizeArray();
+  }
+
+  private initializeVisualization() {
+    d3.select(this.visualizationContainer.nativeElement).selectAll('*').remove();
     this.svg = d3.select(this.visualizationContainer.nativeElement)
       .append('svg')
       .attr('width', '100%')
@@ -183,14 +228,12 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     
     const elementWidth = Math.min(60, width / this.currentData.length - 10);
     
-    // Update visualization
     const elements = this.svg.selectAll('g')
       .data(this.currentData)
       .join('g')
       .attr('transform', (d: any, i: number) => 
         `translate(${i * (elementWidth + 10) + 20}, ${height/2 - 30})`);
 
-    // Add rectangles
     elements.selectAll('rect')
       .data((d: ArrayElement) => [d])
       .join('rect')
@@ -201,7 +244,6 @@ export class ContainsDuplicateComponent implements AfterViewInit {
         d.isDuplicate ? '#ff4444' : 
         d.isChecking ? '#ffd700' : '#4CAF50');
 
-    // Add text
     elements.selectAll('text')
       .data((d: ArrayElement) => [d])
       .join('text')
