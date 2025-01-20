@@ -87,3 +87,29 @@
       color: #666;
     }
   }
+
+  .solution-explanation {
+    margin: 24px 0;
+    
+    .code-block {
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .explanation-steps {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 4px;
+    }
+  }
+
+  mat-accordion {
+    display: block;
+    margin: 24px 0;
+  }

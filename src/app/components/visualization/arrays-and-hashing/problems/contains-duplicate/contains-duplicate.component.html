@@ -62,27 +62,38 @@ Output: false
 
       <mat-divider></mat-divider>
 
-      <div class="solution-explanation">
-        <h3>Solution Explanation</h3>
-        <p>This problem can be solved efficiently using a HashSet. Here's how it works:</p>
-        <div class="code-block">
-          <pre><code [innerHTML]="solutionCode"></code></pre>
-        </div>
-        <p><strong>Time Complexity:</strong> O(n) - We only need to traverse the array once</p>
-        <p><strong>Space Complexity:</strong> O(n) - In the worst case, we might need to store all elements in the set</p>
-        
-        <div class="explanation-steps">
-          <h4>How it works:</h4>
-          <ol>
-            <li>Create an empty HashSet to store numbers we've seen</li>
-            <li>Iterate through each number in the array</li>
-            <li>For each number, check if we've seen it before (is it in the set?)</li>
-            <li>If we have seen it, we found a duplicate - return true</li>
-            <li>If we haven't seen it, add it to our set</li>
-            <li>If we complete the loop without finding duplicates, return false</li>
-          </ol>
-        </div>
-      </div>
+      <mat-accordion>
+        <mat-expansion-panel class="solution-explanation">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Solution Explanation
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <p>This problem can be solved efficiently using a HashSet. Here's how it works:</p>
+            <div class="code-block">
+              <pre><code [innerHTML]="solutionCode"></code></pre>
+            </div>
+            <p><strong>Time Complexity:</strong> O(n) - We only need to traverse the array once</p>
+            <p><strong>Space Complexity:</strong> O(n) - In the worst case, we might need to store all elements in the set</p>
+            
+            <div class="explanation-steps">
+              <h4>How it works:</h4>
+              <ol>
+                <li>Create an empty HashSet to store numbers we've seen</li>
+                <li>Iterate through each number in the array</li>
+                <li>For each number, check if we've seen it before (is it in the set?)</li>
+                <li>If we have seen it, we found a duplicate - return true</li>
+                <li>If we haven't seen it, add it to our set</li>
+                <li>If we complete the loop without finding duplicates, return false</li>
+              </ol>
+            </div>
+          </ng-template>
+
+          
+        </mat-expansion-panel>
+      </mat-accordion>
     </mat-card-content>
   </mat-card>
 </div>
