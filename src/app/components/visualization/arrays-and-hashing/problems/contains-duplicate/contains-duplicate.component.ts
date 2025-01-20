@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
 import { ProblemData } from '../../../../shared/problem/problem.interface';
+import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
 
 interface ArrayElement {
   value: number;
@@ -106,8 +107,10 @@ export class ContainsDuplicateComponent implements AfterViewInit {
   currentStep: string = 'Initial array loaded';
   seenNumbers: number[] = [];
 
+  constructor(private visualizationService: ArrayVisualizationService) {}
+
   ngAfterViewInit() {
-    this.initializeVisualization();
+    this.visualizationService.initializeVisualization(this.visualizationContainer);
     this.showInitialArray();
   }
 
@@ -139,7 +142,7 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     }));
 
     this.currentData = numbers;
-    await this.visualizeArray();
+    this.visualizationService.setData(this.currentData);
     await this.findDuplicates();
   }
 
@@ -152,17 +155,15 @@ export class ContainsDuplicateComponent implements AfterViewInit {
         await this.waitForResume();
       }
 
-      this.currentData[i].isChecking = true;
+      await this.visualizationService.markChecking(i);
       this.currentStep = `Checking number ${this.currentData[i].value}`;
-      await this.visualizeArray();
-      await this.delay(this.animationSpeed);
+      await this.visualizationService.delay(this.animationSpeed);
 
       if (seen.has(this.currentData[i].value)) {
-        this.currentData[i].isDuplicate = true;
+        await this.visualizationService.markDuplicate(i);
         const firstIndex = this.currentData.findIndex(el => el.value === this.currentData[i].value);
-        this.currentData[firstIndex].isDuplicate = true;
+        await this.visualizationService.markDuplicate(firstIndex);
         this.currentStep = `Found duplicate! Number ${this.currentData[i].value} appears twice`;
-        await this.visualizeArray();
         this.isPlaying = false;
         return;
       }
@@ -170,8 +171,7 @@ export class ContainsDuplicateComponent implements AfterViewInit {
       seen.add(this.currentData[i].value);
       this.seenNumbers.push(this.currentData[i].value);
       this.currentStep = `Added ${this.currentData[i].value} to seen numbers`;
-      this.currentData[i].isChecking = false;
-      await this.visualizeArray();
+      await this.visualizationService.clearChecking(i);
     }
     
     this.currentStep = 'No duplicates found in the array';
@@ -196,7 +196,7 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     this.isPaused = false;
     this.currentStep = 'Initial array loaded';
     this.seenNumbers = [];
-    this.initializeVisualization();
+    this.visualizationService.initializeVisualization(this.visualizationContainer);
     this.showInitialArray();
   }
 
@@ -210,51 +210,6 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     this.currentData = numbers;
     this.currentStep = 'Initial array loaded';
     this.seenNumbers = [];
-    this.visualizeArray();
-  }
-
-  private initializeVisualization() {
-    d3.select(this.visualizationContainer.nativeElement).selectAll('*').remove();
-    this.svg = d3.select(this.visualizationContainer.nativeElement)
-      .append('svg')
-      .attr('width', '100%')
-      .attr('height', '100%');
-  }
-
-  private async visualizeArray() {
-    const width = this.visualizationContainer.nativeElement.offsetWidth;
-    const height = this.visualizationContainer.nativeElement.offsetHeight;
-    
-    const elementWidth = Math.min(60, width / this.currentData.length - 10);
-    
-    const elements = this.svg.selectAll('g')
-      .data(this.currentData)
-      .join('g')
-      .attr('transform', (d: any, i: number) => 
-        `translate(${i * (elementWidth + 10) + 20}, ${height/2 - 30})`);
-
-    elements.selectAll('rect')
-      .data((d: ArrayElement) => [d])
-      .join('rect')
-      .attr('width', elementWidth)
-      .attr('height', elementWidth)
-      .attr('rx', 5)
-      .attr('fill', (d: ArrayElement) => 
-        d.isDuplicate ? '#ff4444' : 
-        d.isChecking ? '#ffd700' : '#4CAF50');
-
-    elements.selectAll('text')
-      .data((d: ArrayElement) => [d])
-      .join('text')
-      .attr('x', elementWidth/2)
-      .attr('y', elementWidth/2)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', 'white')
-      .text((d: ArrayElement) => d.value);
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    this.visualizationService.setData(this.currentData);
   }
 }
