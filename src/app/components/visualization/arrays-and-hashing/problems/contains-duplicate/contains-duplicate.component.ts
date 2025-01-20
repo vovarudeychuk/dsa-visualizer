@@ -12,6 +12,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
 import { ProblemData } from '../../../../shared/problem/problem.interface';
 import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ContainsDuplicateService } from './contains-duplicate.service';
+import { CONTAINS_DUPLICATE_DATA } from './contains-duplicate.data';
+import { ContainsDuplicateDataService } from './contains-duplicate-data.service';
 
 interface ArrayElement {
   value: number;
@@ -33,6 +36,10 @@ interface ArrayElement {
     FormsModule,
     MatExpansionModule,
     ProblemComponent
+  ],
+  providers: [
+    ContainsDuplicateService,
+    ContainsDuplicateDataService
   ],
   template: `
     <app-problem
@@ -60,44 +67,7 @@ interface ArrayElement {
 export class ContainsDuplicateComponent implements AfterViewInit {
   @ViewChild('visualizationContainer') private visualizationContainer!: ElementRef;
   
-  problemData: ProblemData = {
-    title: 'Contains Duplicate',
-    inputLabel: 'Enter array (comma-separated)',
-    description: 'Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.',
-    examples: [
-      {
-        input: 'nums = [1,2,3,1]',
-        output: 'true'
-      },
-      {
-        input: 'nums = [1,2,3,4]',
-        output: 'false'
-      }
-    ],
-    solutionCode: `const containsDuplicate = (nums) => {
-    const seen = new Set()
-
-    for (const num of nums) {
-        if (seen.has(num)) {
-            return true  // Found a duplicate
-        }
-        seen.add(num)   // Add number to set
-    }
-
-    return false  // No duplicates found
-}`,
-    timeComplexity: 'O(n) - We only need to traverse the array once',
-    spaceComplexity: 'O(n) - In the worst case, we might need to store all elements in the set',
-    explanationSteps: [
-      'Create an empty HashSet to store numbers we\'ve seen',
-      'Iterate through each number in the array',
-      'For each number, check if we\'ve seen it before (is it in the set?)',
-      'If we have seen it, we found a duplicate - return true',
-      'If we haven\'t seen it, add it to our set',
-      'If we complete the loop without finding duplicates, return false'
-    ]
-  };
-
+  problemData!: ProblemData;
   inputArray: string = '1,2,3,1';
   private svg: any;
   currentData: ArrayElement[] = [];
@@ -107,7 +77,15 @@ export class ContainsDuplicateComponent implements AfterViewInit {
   currentStep: string = 'Initial array loaded';
   seenNumbers: number[] = [];
 
-  constructor(private visualizationService: ArrayVisualizationService) {}
+  constructor(
+    private visualizationService: ArrayVisualizationService,
+    private algorithmService: ContainsDuplicateService,
+    private dataService: ContainsDuplicateDataService
+  ) {
+    this.dataService.getProblemData().subscribe(data => {
+      this.problemData = data;
+    });
+  }
 
   ngAfterViewInit() {
     this.visualizationService.initializeVisualization(this.visualizationContainer);
@@ -135,46 +113,17 @@ export class ContainsDuplicateComponent implements AfterViewInit {
     this.isPlaying = true;
     this.isPaused = false;
     
-    const numbers = this.inputArray.split(',').map(n => ({
-      value: parseInt(n.trim()),
-      isDuplicate: false,
-      isChecking: false
-    }));
-
-    this.currentData = numbers;
-    this.visualizationService.setData(this.currentData);
-    await this.findDuplicates();
-  }
-
-  private async findDuplicates() {
-    const seen = new Set();
-    this.seenNumbers = [];
+    const data = this.algorithmService.parseInput(this.inputArray);
+    this.visualizationService.setData(data);
     
-    for (let i = 0; i < this.currentData.length; i++) {
-      if (this.isPaused) {
-        await this.waitForResume();
-      }
-
-      await this.visualizationService.markChecking(i);
-      this.currentStep = `Checking number ${this.currentData[i].value}`;
-      await this.visualizationService.delay(this.animationSpeed);
-
-      if (seen.has(this.currentData[i].value)) {
-        await this.visualizationService.markDuplicate(i);
-        const firstIndex = this.currentData.findIndex(el => el.value === this.currentData[i].value);
-        await this.visualizationService.markDuplicate(firstIndex);
-        this.currentStep = `Found duplicate! Number ${this.currentData[i].value} appears twice`;
-        this.isPlaying = false;
-        return;
-      }
-
-      seen.add(this.currentData[i].value);
-      this.seenNumbers.push(this.currentData[i].value);
-      this.currentStep = `Added ${this.currentData[i].value} to seen numbers`;
-      await this.visualizationService.clearChecking(i);
-    }
+    await this.algorithmService.findDuplicates(
+      data,
+      (step) => this.currentStep = step,
+      (seen) => this.seenNumbers = seen,
+      () => this.isPaused,
+      () => this.waitForResume()
+    );
     
-    this.currentStep = 'No duplicates found in the array';
     this.isPlaying = false;
   }
 
@@ -201,15 +150,9 @@ export class ContainsDuplicateComponent implements AfterViewInit {
   }
 
   private showInitialArray() {
-    const numbers = this.inputArray.split(',').map(n => ({
-      value: parseInt(n.trim()),
-      isDuplicate: false,
-      isChecking: false
-    }));
-
-    this.currentData = numbers;
+    const data = this.algorithmService.parseInput(this.inputArray);
     this.currentStep = 'Initial array loaded';
     this.seenNumbers = [];
-    this.visualizationService.setData(this.currentData);
+    this.visualizationService.setData(data);
   }
 }
