@@ -9,11 +9,8 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { RouterLink } from '@angular/router';
 
 interface Problem {
-  status: boolean;
-  starred: boolean;
   name: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  hasSolution: boolean;
 }
 
 @Component({
@@ -26,7 +23,7 @@ interface Problem {
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
-    MatCheckbox,
+    // MatCheckbox,
     RouterLink
   ],
   template: `
@@ -36,23 +33,6 @@ interface Problem {
       </mat-card-header>
       <mat-card-content>
         <table mat-table [dataSource]="problems" class="mat-elevation-z2">
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td mat-cell *matCellDef="let problem">
-              <mat-checkbox [checked]="problem.status" disabled></mat-checkbox>
-            </td>
-          </ng-container>
-
-          <!-- Star Column -->
-          <ng-container matColumnDef="starred">
-            <th mat-header-cell *matHeaderCellDef> Star </th>
-            <td mat-cell *matCellDef="let problem">
-              <mat-icon [class.starred]="problem.starred">
-                {{problem.starred ? 'star' : 'star_border'}}
-              </mat-icon>
-            </td>
-          </ng-container>
 
           <!-- Problem Column -->
           <ng-container matColumnDef="name">
@@ -75,15 +55,6 @@ interface Problem {
             </td>
           </ng-container>
 
-          <!-- Solution Column -->
-          <ng-container matColumnDef="solution">
-            <th mat-header-cell *matHeaderCellDef> Solution </th>
-            <td mat-cell *matCellDef="let problem">
-              <button mat-icon-button *ngIf="problem.hasSolution">
-                <mat-icon>play_circle_outline</mat-icon>
-              </button>
-            </td>
-          </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
@@ -112,8 +83,6 @@ interface Problem {
       display: flex;
       align-items: center;
     }
-    .mat-column-status,
-    .mat-column-starred,
     .mat-column-solution {
       width: 80px;
       text-align: center;
@@ -136,71 +105,44 @@ interface Problem {
   `]
 })
 export class ArraysAndHashingComponent {
-  displayedColumns: string[] = ['status', 'starred', 'name', 'difficulty', 'solution'];
+  displayedColumns: string[] = ['name', 'difficulty'];
   
   problems: Problem[] = [
     {
-      status: false,
-      starred: true,
       name: 'Contains Duplicate',
-      difficulty: 'Easy',
-      hasSolution: true
+      difficulty: 'Easy'
     },
     {
-      status: false,
-      starred: true,
       name: 'Valid Anagram',
-      difficulty: 'Easy',
-      hasSolution: true
+      difficulty: 'Easy'
     },
     {
-      status: false,
-      starred: true,
       name: 'Two Sum',
-      difficulty: 'Easy',
-      hasSolution: true
+      difficulty: 'Easy'
     },
     {
-      status: false,
-      starred: true,
       name: 'Group Anagrams',
-      difficulty: 'Medium',
-      hasSolution: true
+      difficulty: 'Medium'
     },
     {
-      status: false,
-      starred: true,
       name: 'Top K Frequent Elements',
-      difficulty: 'Medium',
-      hasSolution: true
+      difficulty: 'Medium'
     },
     {
-      status: false,
-      starred: true,
-      name: 'Encode and Decode Strings',
-      difficulty: 'Medium',
-      hasSolution: true
-    },
-    {
-      status: false,
-      starred: true,
       name: 'Product of Array Except Self',
-      difficulty: 'Medium',
-      hasSolution: true
+      difficulty: 'Medium'
     },
     {
-      status: false,
-      starred: true,
       name: 'Valid Sudoku',
-      difficulty: 'Medium',
-      hasSolution: true
+      difficulty: 'Medium'
     },
     {
-      status: false,
-      starred: true,
+      name: 'Encode and Decode Strings',
+      difficulty: 'Medium'
+    },
+    {
       name: 'Longest Consecutive Sequence',
-      difficulty: 'Medium',
-      hasSolution: true
+      difficulty: 'Medium'
     }
   ];
 } 
