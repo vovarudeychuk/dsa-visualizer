@@ -55,7 +55,14 @@ export class ArrayVisualizationService {
     showAsChars: boolean = false, 
     separators?: VisualizationSeparators
   ) {
-    this.currentData = [...data];
+    // Create a new array instead of spreading to avoid reference issues
+    this.currentData = data.map(element => ({
+      value: element.value,
+      isDuplicate: element.isDuplicate,
+      isChecking: element.isChecking,
+      isHighlighted: element.isHighlighted
+    }));
+
     this.visualizeArray(this.currentData, { 
       showAsChars, 
       separators,
@@ -84,6 +91,9 @@ export class ArrayVisualizationService {
   ) {
     if (!this.container || !this.svg) return;
 
+    // Clear all existing content first
+    this.svg.selectAll('*').remove();
+
     const {
       highlightColor = '#ffd700',
       checkingColor = '#ffd700',
@@ -102,40 +112,47 @@ export class ArrayVisualizationService {
     // Calculate element width to fit container
     const availableWidth = containerWidth - padding;
     const elementWidth = Math.max(20, Math.min(50, (availableWidth / data.length) - minSpacing));
-    const spacing = Math.max(minSpacing, Math.min(10, (availableWidth - (elementWidth * data.length)) / (data.length - 1)));
+    const spacing = Math.max(minSpacing, Math.min(10, (availableWidth - (elementWidth * data.length)) / Math.max(1, data.length - 1)));
 
     // Update SVG dimensions
     this.svg
       .attr('width', containerWidth)
       .attr('height', containerHeight);
 
-    // Clear previous elements
-    this.svg.selectAll('.separator').remove();
-    this.svg.selectAll('.group-separator').remove();
+    // Calculate exact positions
+    const startX = 20; // Initial padding
+    
+    // Function to calculate the middle position between nodes
+    const getMiddlePosition = (position: number) => {
+      return startX + (position * (elementWidth + spacing)) + elementWidth + (spacing / 2);
+    };
 
     // Add separators with enhanced styling
     if (separators) {
       // String separators (thin lines)
       separators.stringPositions.forEach(position => {
-        // Add glow effect for string separators
+        const xPos = getMiddlePosition(position - 1); // Adjust position calculation
+        
+        // Add glow effect
         this.svg.append('line')
           .attr('class', 'separator-glow')
-          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('x1', xPos)
           .attr('y1', containerHeight/2 - 35)
-          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('x2', xPos)
           .attr('y2', containerHeight/2 + 15)
-          .attr('stroke', '#4CAF50')  // Match node color
+          .attr('stroke', '#4CAF50')
           .attr('stroke-width', 3)
           .attr('stroke-opacity', '0.2')
           .attr('filter', 'url(#glow)');
 
+        // Add main separator line
         this.svg.append('line')
           .attr('class', 'separator')
-          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('x1', xPos)
           .attr('y1', containerHeight/2 - 35)
-          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('x2', xPos)
           .attr('y2', containerHeight/2 + 15)
-          .attr('stroke', '#fff')  // White color
+          .attr('stroke', '#fff')
           .attr('stroke-width', 1.5)
           .attr('stroke-dasharray', '4,3')
           .style('opacity', '0.6');
@@ -143,24 +160,26 @@ export class ArrayVisualizationService {
 
       // Group separators (thick lines)
       separators.groupPositions.forEach(position => {
-        // Add glow effect for group separators
+        const xPos = getMiddlePosition(position - 1); // Adjust position calculation
+        
+        // Add glow effect
         this.svg.append('line')
           .attr('class', 'group-separator-glow')
-          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('x1', xPos)
           .attr('y1', containerHeight/2 - 45)
-          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('x2', xPos)
           .attr('y2', containerHeight/2 + 25)
           .attr('stroke', '#4CAF50')
           .attr('stroke-width', 6)
           .attr('stroke-opacity', '0.3')
           .attr('filter', 'url(#glow)');
 
-        // Main group separator line
+        // Add main group separator line
         this.svg.append('line')
           .attr('class', 'group-separator')
-          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('x1', xPos)
           .attr('y1', containerHeight/2 - 45)
-          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('x2', xPos)
           .attr('y2', containerHeight/2 + 25)
           .attr('stroke', '#fff')
           .attr('stroke-width', 2.5)
@@ -182,13 +201,13 @@ export class ArrayVisualizationService {
       .attr('stdDeviation', '2')
       .attr('result', 'coloredBlur');
 
-    // Update elements with enhanced styling
+    // Update elements with new positioning
     const elements = this.svg.selectAll('g.element')
       .data(data)
       .join('g')
       .attr('class', 'element')
       .attr('transform', (d: any, i: number) => 
-        `translate(${i * (elementWidth + spacing) + 20}, ${containerHeight/2 - 25})`);
+        `translate(${startX + (i * (elementWidth + spacing))}, ${containerHeight/2 - 25})`);
 
     // Add subtle shadow to nodes
     elements.selectAll('rect')
