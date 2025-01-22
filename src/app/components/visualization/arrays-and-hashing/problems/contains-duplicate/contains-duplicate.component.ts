@@ -18,11 +18,11 @@ import { ContainsDuplicateDataService } from './contains-duplicate-data.service'
   template: `
     <app-problem
       [problemData]="problemData"
-      [inputValue]="inputArray"
+      [inputValues]="inputValues"
       [isPlaying]="isPlaying"
       [isPaused]="isPaused"
       [currentStep]="currentStep"
-      (onInputChange)="onInputChange($event)"
+      (onInputChange)="handleInputChange($event)"
       (onPlay)="togglePlayPause()"
       (onReset)="reset()">
       
@@ -47,10 +47,17 @@ export class ContainsDuplicateComponent extends ArrayProblemComponent {
     private dataService: ContainsDuplicateDataService
   ) {
     super(visualizationService);
-    this.inputArray = '1,2,3,1';
+    this.inputValues = {
+      array: '1,2,3,1'
+    };
     this.dataService.getProblemData().subscribe(data => {
       this.problemData = data;
     });
+  }
+
+  override handleInputChange(event: {key: string, value: string}) {
+    this.inputValues[event.key] = event.value;
+    this.reset();
   }
 
   protected async visualize() {
@@ -59,7 +66,7 @@ export class ContainsDuplicateComponent extends ArrayProblemComponent {
     this.isPlaying = true;
     this.isPaused = false;
     
-    const data = this.algorithmService.parseInput(this.inputArray);
+    const data = this.algorithmService.parseInput(this.inputValues['array']);
     this.visualizationService.setData(data);
     
     await this.algorithmService.findDuplicates(
@@ -74,9 +81,7 @@ export class ContainsDuplicateComponent extends ArrayProblemComponent {
   }
 
   protected showInitialArray() {
-    const data = this.algorithmService.parseInput(this.inputArray);
-    this.currentStep = 'Initial array loaded';
-    this.seenNumbers = [];
+    const data = this.algorithmService.parseInput(this.inputValues['array']);
     this.visualizationService.setData(data);
   }
 }

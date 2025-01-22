@@ -16,11 +16,11 @@ import { TwoSumDataService } from './two-sum-data.service';
   template: `
     <app-problem
       [problemData]="problemData"
-      [inputValue]="inputArray"
+      [inputValues]="inputValues"
       [isPlaying]="isPlaying"
       [isPaused]="isPaused"
       [currentStep]="currentStep"
-      (onInputChange)="onInputChange($event)"
+      (onInputChange)="handleInputChange($event)"
       (onPlay)="togglePlayPause()"
       (onReset)="reset()">
       
@@ -38,7 +38,7 @@ import { TwoSumDataService } from './two-sum-data.service';
 })
 export class TwoSumComponent extends ArrayProblemComponent {
   hashMap = new Map<number, number>();
-  target: number = 9;
+  // inputValues: { [key: string]: string } = {};
 
   constructor(
     visualizationService: ArrayVisualizationService,
@@ -46,11 +46,19 @@ export class TwoSumComponent extends ArrayProblemComponent {
     private dataService: TwoSumDataService
   ) {
     super(visualizationService);
-    this.inputArray = '2,7,11,15';
+    this.inputValues = {
+      array: '2,7,11,15',
+      target: '9'
+    };
     this.dataService.getProblemData().subscribe(data => {
       this.problemData = data;
     });
   }
+
+  // override handleInputChange(event: {key: string, value: string}) {
+  //   this.inputValues[event.key] = event.value;
+  //   this.reset();
+  // }
 
   protected async visualize() {
     if (this.isPlaying) return;
@@ -58,12 +66,13 @@ export class TwoSumComponent extends ArrayProblemComponent {
     this.isPlaying = true;
     this.isPaused = false;
     
-    const data = this.algorithmService.parseInput(this.inputArray);
+    const data = this.algorithmService.parseInput(this.inputValues['array']);
+    const target = parseInt(this.inputValues['target']);
     this.visualizationService.setData(data);
     
     await this.algorithmService.findTwoSum(
       data,
-      this.target,
+      target,
       (step) => this.currentStep = step,
       (map) => this.hashMap = map,
       () => this.isPaused,
@@ -74,9 +83,7 @@ export class TwoSumComponent extends ArrayProblemComponent {
   }
 
   protected showInitialArray() {
-    const data = this.algorithmService.parseInput(this.inputArray);
-    this.currentStep = 'Initial array loaded';
-    this.hashMap.clear();
+    const data = this.algorithmService.parseInput(this.inputValues['array']);
     this.visualizationService.setData(data);
   }
 

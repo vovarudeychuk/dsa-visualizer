@@ -45,10 +45,15 @@ Output: {{ example.output }}</pre>
             <h3>Solution Workspace</h3>
             
             <div class="controls">
-              <mat-form-field>
-                <mat-label>{{ problemData.inputLabel }}</mat-label>
-                <input matInput [(ngModel)]="inputValue" (ngModelChange)="onInputChange.emit($event)">
-              </mat-form-field>
+              <div class="inputs-container">
+                <mat-form-field *ngFor="let input of problemData.inputs">
+                  <mat-label>{{ input.label }}</mat-label>
+                  <input matInput 
+                         [value]="inputValues[input.key] || ''"
+                         (ngModelChange)="onInputChange.emit({key: input.key, value: $event})"
+                         [(ngModel)]="inputValues[input.key]">
+                </mat-form-field>
+              </div>
               
               <button mat-raised-button color="primary" 
                       (click)="onPlay.emit()"
@@ -110,12 +115,12 @@ Output: {{ example.output }}</pre>
 })
 export class ProblemComponent {
     @Input() problemData!: ProblemData;
-    @Input() inputValue: string = '';
+    @Input() inputValues: { [key: string]: string } = {};
     @Input() isPlaying: boolean = false;
     @Input() isPaused: boolean = false;
     @Input() currentStep: string = '';
 
-    @Output() onInputChange = new EventEmitter<string>();
+    @Output() onInputChange = new EventEmitter<{key: string, value: string}>();
     @Output() onPlay = new EventEmitter<void>();
     @Output() onReset = new EventEmitter<void>();
 } 

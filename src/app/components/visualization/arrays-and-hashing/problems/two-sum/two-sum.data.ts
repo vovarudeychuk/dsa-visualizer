@@ -2,7 +2,18 @@ import { ProblemData } from '../../../../shared/problem/problem.interface';
 
 export const TWO_SUM_DATA: ProblemData = {
   title: 'Two Sum',
-  inputLabel: 'Enter array (comma-separated)',
+  inputs: [
+    {
+      label: 'Enter array (comma-separated)',
+      value: '2,7,11,15',
+      key: 'array'
+    },
+    {
+      label: 'Target sum',
+      value: '9',
+      key: 'target'
+    }
+  ],
   description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.',
   examples: [
     {

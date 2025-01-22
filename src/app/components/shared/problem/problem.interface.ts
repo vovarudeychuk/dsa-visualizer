@@ -1,12 +1,18 @@
 export interface ProblemData {
   title: string;
-  inputLabel: string;
+  inputs: ProblemInput[];
   description: string;
   examples: Example[];
   solutionCode: string;
   timeComplexity: string;
   spaceComplexity: string;
   explanationSteps: string[];
+}
+
+export interface ProblemInput {
+  label: string;
+  value: string;
+  key: string;
 }
 
 export interface Example {

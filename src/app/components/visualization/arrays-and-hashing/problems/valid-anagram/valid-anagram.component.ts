@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
 import { ArrayProblemComponent } from '../../../../shared/base/array-problem.component';
@@ -16,11 +16,11 @@ import { ValidAnagramDataService } from './valid-anagram-data.service';
   template: `
     <app-problem
       [problemData]="problemData"
-      [inputValue]="inputArray"
+      [inputValues]="inputValues"
       [isPlaying]="isPlaying"
       [isPaused]="isPaused"
       [currentStep]="currentStep"
-      (onInputChange)="onInputChange($event)"
+      (onInputChange)="handleInputChange($event)"
       (onPlay)="togglePlayPause()"
       (onReset)="reset()">
       
@@ -60,7 +60,7 @@ import { ValidAnagramDataService } from './valid-anagram-data.service';
     }
   `]
 })
-export class ValidAnagramComponent extends ArrayProblemComponent implements OnInit, AfterViewInit {
+export class ValidAnagramComponent extends ArrayProblemComponent implements OnDestroy {
   @ViewChild('string1Container') string1Container!: ElementRef;
   @ViewChild('string2Container') string2Container!: ElementRef;
   
@@ -74,15 +74,20 @@ export class ValidAnagramComponent extends ArrayProblemComponent implements OnIn
     private dataService: ValidAnagramDataService
   ) {
     super(visualizationService);
-    this.inputArray = 'anagram,nagaram';
-    this.currentStep = 'Initial strings loaded';
-  }
-
-  ngOnInit() {
+    this.isDualVisualization = true;
+    this.inputValues = {
+      string1: 'anagram',
+      string2: 'nagaram'
+    };
     this.dataService.getProblemData().subscribe(data => {
       this.problemData = data;
     });
   }
+
+  // handleInputChange(event: {key: string, value: string}) {
+  //   this.inputValues[event.key] = event.value;
+  //   this.reset();
+  // }
 
   override ngAfterViewInit() {
     setTimeout(() => {
@@ -100,9 +105,8 @@ export class ValidAnagramComponent extends ArrayProblemComponent implements OnIn
     this.isPlaying = true;
     this.isPaused = false;
     
-    const [str1, str2] = this.inputArray.split(',');
-    this.string1 = this.algorithmService.parseInput(str1);
-    this.string2 = this.algorithmService.parseInput(str2);
+    this.string1 = this.algorithmService.parseInput(this.inputValues['string1']);
+    this.string2 = this.algorithmService.parseInput(this.inputValues['string2']);
     
     this.visualizationService.setDualData(this.string1, this.string2);
     
@@ -119,10 +123,13 @@ export class ValidAnagramComponent extends ArrayProblemComponent implements OnIn
   }
 
   protected showInitialArray() {
-    const [str1, str2] = this.inputArray.split(',');
-    this.string1 = this.algorithmService.parseInput(str1);
-    this.string2 = this.algorithmService.parseInput(str2);
+    this.string1 = this.algorithmService.parseInput(this.inputValues['string1']);
+    this.string2 = this.algorithmService.parseInput(this.inputValues['string2']);
     this.charMap.clear();
     this.visualizationService.setDualData(this.string1, this.string2);
+  }
+
+  ngOnDestroy() {
+    // Any cleanup code if needed
   }
 }

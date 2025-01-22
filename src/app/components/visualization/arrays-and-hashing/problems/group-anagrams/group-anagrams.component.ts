@@ -16,11 +16,11 @@ import { GroupAnagramsDataService } from './group-anagrams-data.service';
   template: `
     <app-problem
       [problemData]="problemData"
-      [inputValue]="inputArray"
+      [inputValues]="inputValues"
       [isPlaying]="isPlaying"
       [isPaused]="isPaused"
       [currentStep]="currentStep"
-      (onInputChange)="onInputChange($event)"
+  
       (onPlay)="togglePlayPause()"
       (onReset)="reset()">
       
@@ -95,13 +95,18 @@ export class GroupAnagramsComponent extends ArrayProblemComponent {
     private dataService: GroupAnagramsDataService
   ) {
     super(visualizationService);
-    this.inputArray = 'eat,tea,tan,ate,nat,bat';
-    this.currentStep = 'Initial strings loaded';
-    
+    this.inputValues = {
+      array: 'eat,tea,tan,ate,nat,bat'
+    };
     this.dataService.getProblemData().subscribe(data => {
       this.problemData = data;
     });
   }
+
+  // handleInputChange(event: {key: string, value: string}) {
+  //   this.inputValues[event.key] = event.value;
+  //   this.reset();
+  // }
 
   protected async visualize() {
     if (this.isPlaying) return;
@@ -121,17 +126,15 @@ export class GroupAnagramsComponent extends ArrayProblemComponent {
   }
 
   protected showInitialArray() {
-    this.strings = this.algorithmService.parseInput(this.inputArray);
+    this.strings = this.algorithmService.parseInput(this.inputValues['array']);
     this.anagramGroups = [];
 
-    // Calculate string positions for initial visualization
     let currentPosition = 0;
     const stringPositions = this.strings.map(str => {
       currentPosition += str.length;
       return currentPosition;
-    }).slice(0, -1); // Remove last separator as we don't need it after the last string
+    }).slice(0, -1);
 
-    // Initial visualization should only have string separators, no group separators
     this.visualizationService.setData(
       this.strings.flat(),
       true,

@@ -22,13 +22,17 @@ pre {
 }
 
 .controls {
-  display: flex;
-  gap: 16px;
-  align-items: center;
   margin-bottom: 24px;
 
-  button {
+  .inputs-container {
     display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  button {
+    // display: flex;
     align-items: center;
     gap: 8px;
     

@@ -2,7 +2,13 @@ import { ProblemData } from '../../../../shared/problem/problem.interface';
 
 export const GROUP_ANAGRAMS_DATA: ProblemData = {
   title: 'Group Anagrams',
-  inputLabel: 'Enter strings (comma-separated)',
+  inputs: [
+    {
+      label: 'Enter strings (comma-separated)',
+      value: 'eat,tea,tan,ate,nat,bat',
+      key: 'array'
+    }
+  ],
   description: 'Given an array of strings strs, group the anagrams together. You can return the answer in any order. An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.',
   examples: [
     {

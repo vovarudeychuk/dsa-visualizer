@@ -2,7 +2,13 @@ import { ProblemData } from '../../../../shared/problem/problem.interface';
 
 export const CONTAINS_DUPLICATE_DATA: ProblemData = {
   title: 'Contains Duplicate',
-  inputLabel: 'Enter array (comma-separated)',
+  inputs: [
+    {
+      label: 'Enter array (comma-separated)',
+      value: '1,2,3,1',
+      key: 'array'
+    }
+  ],
   description: 'Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.',
   examples: [
     {
