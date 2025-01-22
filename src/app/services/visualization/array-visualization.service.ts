@@ -3,11 +3,16 @@ import * as d3 from 'd3';
 
 export interface ArrayElement {
   value: number;
-  isHighlighted?: boolean;
-  isChecking?: boolean;
   isDuplicate?: boolean;
-  isSwapping?: boolean;
+  isChecking?: boolean;
+  isHighlighted?: boolean;
+  isBracket?: boolean;
   // Add other states as needed for different problems
+}
+
+export interface VisualizationSeparators {
+  stringPositions: number[];  // Positions for thin separators between strings
+  groupPositions: number[];   // Positions for thick separators between groups
 }
 
 @Injectable({
@@ -45,13 +50,17 @@ export class ArrayVisualizationService {
     });
   }
 
-  setData(data: ArrayElement[]) {
-    if (this.isMultipleMode) {
-      console.error('Service is in multiple visualization mode');
-      return;
-    }
+  setData(
+    data: ArrayElement[], 
+    showAsChars: boolean = false, 
+    separators?: VisualizationSeparators
+  ) {
     this.currentData = [...data];
-    this.visualizeArray(this.currentData);
+    this.visualizeArray(this.currentData, { 
+      showAsChars, 
+      separators,
+      defaultColor: '#4CAF50'
+    });
   }
 
   setDualData(data1: ArrayElement[], data2: ArrayElement[]) {
@@ -69,33 +78,126 @@ export class ArrayVisualizationService {
       checkingColor?: string;
       duplicateColor?: string;
       defaultColor?: string;
+      showAsChars?: boolean;
+      separators?: VisualizationSeparators;
     } = {}
   ) {
-    if (!this.container || !this.svg || this.isMultipleMode) return;
+    if (!this.container || !this.svg) return;
 
     const {
       highlightColor = '#ffd700',
       checkingColor = '#ffd700',
       duplicateColor = '#ff4444',
-      defaultColor = '#4CAF50'
+      defaultColor = '#4CAF50',
+      showAsChars = false,
+      separators
     } = options;
 
-    const width = this.container.nativeElement.offsetWidth;
-    const height = this.container.nativeElement.offsetHeight;
-    const elementWidth = Math.min(60, width / data.length - 10);
+    // Calculate dimensions with auto-scaling
+    const containerWidth = this.container.nativeElement.offsetWidth;
+    const containerHeight = Math.max(150, this.container.nativeElement.offsetHeight);
+    const padding = 40; // Total horizontal padding
+    const minSpacing = 5; // Minimum space between elements
+    
+    // Calculate element width to fit container
+    const availableWidth = containerWidth - padding;
+    const elementWidth = Math.max(20, Math.min(50, (availableWidth / data.length) - minSpacing));
+    const spacing = Math.max(minSpacing, Math.min(10, (availableWidth - (elementWidth * data.length)) / (data.length - 1)));
 
-    const elements = this.svg.selectAll('g')
+    // Update SVG dimensions
+    this.svg
+      .attr('width', containerWidth)
+      .attr('height', containerHeight);
+
+    // Clear previous elements
+    this.svg.selectAll('.separator').remove();
+    this.svg.selectAll('.group-separator').remove();
+
+    // Add separators with enhanced styling
+    if (separators) {
+      // String separators (thin lines)
+      separators.stringPositions.forEach(position => {
+        // Add glow effect for string separators
+        this.svg.append('line')
+          .attr('class', 'separator-glow')
+          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('y1', containerHeight/2 - 35)
+          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('y2', containerHeight/2 + 15)
+          .attr('stroke', '#4CAF50')  // Match node color
+          .attr('stroke-width', 3)
+          .attr('stroke-opacity', '0.2')
+          .attr('filter', 'url(#glow)');
+
+        this.svg.append('line')
+          .attr('class', 'separator')
+          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('y1', containerHeight/2 - 35)
+          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('y2', containerHeight/2 + 15)
+          .attr('stroke', '#fff')  // White color
+          .attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '4,3')
+          .style('opacity', '0.6');
+      });
+
+      // Group separators (thick lines)
+      separators.groupPositions.forEach(position => {
+        // Add glow effect for group separators
+        this.svg.append('line')
+          .attr('class', 'group-separator-glow')
+          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('y1', containerHeight/2 - 45)
+          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('y2', containerHeight/2 + 25)
+          .attr('stroke', '#4CAF50')
+          .attr('stroke-width', 6)
+          .attr('stroke-opacity', '0.3')
+          .attr('filter', 'url(#glow)');
+
+        // Main group separator line
+        this.svg.append('line')
+          .attr('class', 'group-separator')
+          .attr('x1', position * (elementWidth + spacing) + 20)
+          .attr('y1', containerHeight/2 - 45)
+          .attr('x2', position * (elementWidth + spacing) + 20)
+          .attr('y2', containerHeight/2 + 25)
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 2.5)
+          .style('opacity', '0.8');
+      });
+    }
+
+    // Add SVG filters for glow effect
+    const defs = this.svg.append('defs');
+    
+    const filter = defs.append('filter')
+      .attr('id', 'glow')
+      .attr('x', '-50%')
+      .attr('y', '-50%')
+      .attr('width', '200%')
+      .attr('height', '200%');
+
+    filter.append('feGaussianBlur')
+      .attr('stdDeviation', '2')
+      .attr('result', 'coloredBlur');
+
+    // Update elements with enhanced styling
+    const elements = this.svg.selectAll('g.element')
       .data(data)
       .join('g')
+      .attr('class', 'element')
       .attr('transform', (d: any, i: number) => 
-        `translate(${i * (elementWidth + 10) + 20}, ${height/2 - 30})`);
+        `translate(${i * (elementWidth + spacing) + 20}, ${containerHeight/2 - 25})`);
 
+    // Add subtle shadow to nodes
     elements.selectAll('rect')
       .data((d: ArrayElement) => [d])
       .join('rect')
       .attr('width', elementWidth)
       .attr('height', elementWidth)
-      .attr('rx', 5)
+      .attr('rx', 4)  // Slightly rounded corners
+      .attr('filter', 'drop-shadow(0px 2px 2px rgba(0,0,0,0.3))')
       .attr('fill', (d: ArrayElement) => {
         if (d.isDuplicate) return duplicateColor;
         if (d.isChecking) return checkingColor;
@@ -103,6 +205,9 @@ export class ArrayVisualizationService {
         return defaultColor;
       });
 
+    // Adjust text with better contrast
+    const fontSize = Math.max(12, Math.min(16, elementWidth * 0.6));
+    
     elements.selectAll('text')
       .data((d: ArrayElement) => [d])
       .join('text')
@@ -111,7 +216,10 @@ export class ArrayVisualizationService {
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('fill', 'white')
-      .text((d: ArrayElement) => d.value);
+      .attr('font-weight', 'bold')  // Make text bold
+      .style('font-size', `${fontSize}px`)
+      .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.3)')  // Text shadow
+      .text((d: ArrayElement) => showAsChars ? String.fromCharCode(d.value) : d.value);
   }
 
   private visualizeDualArrays(data1: ArrayElement[], data2: ArrayElement[]) {
@@ -137,6 +245,7 @@ export class ArrayVisualizationService {
         .attr('height', elementWidth)
         .attr('rx', 5)
         .attr('fill', (d: ArrayElement) => {
+          if (d.isBracket) return '#888';  // Gray color for brackets
           if (d.isDuplicate) return '#ff4444';
           if (d.isChecking) return '#ffd700';
           if (d.isHighlighted) return '#ffd700';
