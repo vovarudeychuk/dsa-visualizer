@@ -1,67 +1,128 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
+import { ProblemComponent } from '../../../../shared/problem/problem.component';
+import { ArrayProblemComponent } from '../../../../shared/base/array-problem.component';
+import { ArrayElement, ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ValidAnagramService } from './valid-anagram.service';
+import { ValidAnagramDataService } from './valid-anagram-data.service';
 
 @Component({
   selector: 'app-valid-anagram',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    FormsModule
+    ProblemComponent
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Valid Anagram</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="problem-description">
-          <h3>Problem Description</h3>
-          <p>Given two strings s and t, return true if t is an anagram of s, and false otherwise.</p>
-          
-          <h3>Examples</h3>
-          <pre>
-Input: s = "anagram", t = "nagaram"
-Output: true
-
-Input: s = "rat", t = "car"
-Output: false
-          </pre>
+    <app-problem
+      [problemData]="problemData"
+      [inputValue]="inputArray"
+      [isPlaying]="isPlaying"
+      [isPaused]="isPaused"
+      [currentStep]="currentStep"
+      (onInputChange)="onInputChange($event)"
+      (onPlay)="togglePlayPause()"
+      (onReset)="reset()">
+      
+      <div visualization>
+        <div class="strings-container">
+            <div #string1Container class="visualization-container"></div>
+            <div #string2Container class="visualization-container"></div>
         </div>
+      </div>
 
-        <div class="solution-workspace">
-          <h3>Solution Workspace</h3>
-          <!-- Add visualization content here -->
+      <div step-info>
+        <div class="char-map" *ngIf="charMap.size > 0">
+          <strong>Character Count Map:</strong>
+          <div class="char-counts">
+            <div class="char-count" *ngFor="let entry of charMap | keyvalue">
+              '{{ entry.key }}': {{ entry.value }}
+            </div>
+          </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </app-problem>
   `,
   styles: [`
-    mat-card {
-      margin: 20px;
+    .char-counts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
     }
-    .problem-description {
-      margin-bottom: 24px;
-    }
-    pre {
-      background-color: #f5f5f5;
-      padding: 16px;
+
+    .char-count {
+      background-color: #2c3e50;
+      color: white;
+      padding: 4px 8px;
       border-radius: 4px;
-      overflow-x: auto;
-    }
-    .solution-workspace {
-      margin-top: 24px;
+      font-family: monospace;
     }
   `]
 })
-export class ValidAnagramComponent {
-  // Component logic will go here
+export class ValidAnagramComponent extends ArrayProblemComponent implements OnInit, AfterViewInit {
+  @ViewChild('string1Container') string1Container!: ElementRef;
+  @ViewChild('string2Container') string2Container!: ElementRef;
+  
+  charMap = new Map<string, number>();
+  string1: ArrayElement[] = [];
+  string2: ArrayElement[] = [];
+
+  constructor(
+    visualizationService: ArrayVisualizationService,
+    private algorithmService: ValidAnagramService,
+    private dataService: ValidAnagramDataService
+  ) {
+    super(visualizationService);
+    this.inputArray = 'anagram,nagaram';
+    this.currentStep = 'Initial strings loaded';
+  }
+
+  ngOnInit() {
+    this.dataService.getProblemData().subscribe(data => {
+      this.problemData = data;
+    });
+  }
+
+  override ngAfterViewInit() {
+    setTimeout(() => {
+      this.visualizationService.initializeDualVisualization(
+        this.string1Container,
+        this.string2Container
+      );
+      this.showInitialArray();
+    });
+  }
+
+  protected override async visualize() {
+    if (this.isPlaying) return;
+    
+    this.isPlaying = true;
+    this.isPaused = false;
+    
+    const [str1, str2] = this.inputArray.split(',');
+    this.string1 = this.algorithmService.parseInput(str1);
+    this.string2 = this.algorithmService.parseInput(str2);
+    
+    this.visualizationService.setDualData(this.string1, this.string2);
+    
+    await this.algorithmService.checkAnagram(
+      this.string1,
+      this.string2,
+      (step) => this.currentStep = step,
+      (map) => this.charMap = map,
+      () => this.isPaused,
+      () => this.waitForResume()
+    );
+    
+    this.isPlaying = false;
+  }
+
+  protected showInitialArray() {
+    const [str1, str2] = this.inputArray.split(',');
+    this.string1 = this.algorithmService.parseInput(str1);
+    this.string2 = this.algorithmService.parseInput(str2);
+    this.charMap.clear();
+    this.visualizationService.setDualData(this.string1, this.string2);
+  }
 }
