@@ -9,6 +9,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ProblemData } from './problem.interface';
+import { Highlight } from 'ngx-highlightjs';
+import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 
 @Component({
     selector: 'app-problem',
@@ -22,7 +24,9 @@ import { ProblemData } from './problem.interface';
         MatDividerModule,
         MatIconModule,
         MatExpansionModule,
-        FormsModule
+        FormsModule,
+        Highlight,
+        HighlightLineNumbers
     ],
     template: `
     <div class="container">
@@ -53,9 +57,8 @@ Output: {{ example.output }}</pre>
                          (ngModelChange)="onInputChange.emit({key: input.key, value: $event})"
                          [(ngModel)]="inputValues[input.key]">
                 </mat-form-field>
-              </div>
-              
-              <button mat-raised-button color="primary" 
+
+                <button mat-raised-button color="primary" 
                       (click)="onPlay.emit()"
                       [disabled]="isPlaying && !isPaused">
                 <mat-icon>{{(!isPlaying || isPaused) ? 'play_arrow' : 'pause'}}</mat-icon>
@@ -66,6 +69,9 @@ Output: {{ example.output }}</pre>
                 <mat-icon>restart_alt</mat-icon>
                 Reset
               </button>
+              </div>
+              
+              
             </div>
 
             <div class="visualization-section">
@@ -94,7 +100,12 @@ Output: {{ example.output }}</pre>
 
               <p>This problem can be solved efficiently using a HashSet. Here's how it works:</p>
               <div class="code-block">
-                <pre><code>{{ problemData.solutionCode }}</code></pre>
+                <pre>
+                    <code [highlight]="problemData.solutionCode" 
+                           [language]="'javascript'" 
+                           lineNumbers>
+                    </code>
+                </pre>
               </div>
               <p><strong>Time Complexity:</strong> {{ problemData.timeComplexity }}</p>
               <p><strong>Space Complexity:</strong> {{ problemData.spaceComplexity }}</p>
@@ -120,7 +131,7 @@ export class ProblemComponent {
     @Input() isPaused: boolean = false;
     @Input() currentStep: string = '';
 
-    @Output() onInputChange = new EventEmitter<{key: string, value: string}>();
+    @Output() onInputChange = new EventEmitter<{ key: string, value: string }>();
     @Output() onPlay = new EventEmitter<void>();
     @Output() onReset = new EventEmitter<void>();
 } 
