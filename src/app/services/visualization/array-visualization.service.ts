@@ -31,11 +31,12 @@ export class ArrayVisualizationService {
   initializeVisualization(container: ElementRef) {
     this.isMultipleMode = false;
     this.container = container;
+    // Clear any existing content
     d3.select(this.container.nativeElement).selectAll('*').remove();
     this.svg = d3.select(this.container.nativeElement)
       .append('svg')
       .attr('width', '100%')
-      .attr('height', '100%');
+      .attr('height', '150px'); // Set fixed height
   }
 
   initializeDualVisualization(container1: ElementRef, container2: ElementRef) {
@@ -103,11 +104,11 @@ export class ArrayVisualizationService {
       separators
     } = options;
 
-    // Calculate dimensions with auto-scaling
+    // Calculate dimensions with fixed height
     const containerWidth = this.container.nativeElement.offsetWidth;
-    const containerHeight = Math.max(150, this.container.nativeElement.offsetHeight);
-    const padding = 40; // Total horizontal padding
-    const minSpacing = 5; // Minimum space between elements
+    const containerHeight = 150; // Use fixed height
+    const padding = 40;
+    const minSpacing = 5;
     
     // Calculate element width to fit container
     const availableWidth = containerWidth - padding;
@@ -117,7 +118,9 @@ export class ArrayVisualizationService {
     // Update SVG dimensions
     this.svg
       .attr('width', containerWidth)
-      .attr('height', containerHeight);
+      .attr('height', containerHeight)
+      .attr('viewBox', `0 0 ${containerWidth} ${containerHeight}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     // Calculate exact positions
     const startX = 20; // Initial padding
