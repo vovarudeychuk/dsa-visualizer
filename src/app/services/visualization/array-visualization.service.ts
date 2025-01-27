@@ -53,24 +53,15 @@ export class ArrayVisualizationService {
     });
   }
 
-  setData(
-    data: ArrayElement[], 
-    showAsChars: boolean = false, 
-    separators?: VisualizationSeparators
-  ) {
-    // Create a new array instead of spreading to avoid reference issues
-    this.currentData = data.map(element => ({
-      value: element.value,
-      isDuplicate: element.isDuplicate,
-      isChecking: element.isChecking,
-      isHighlighted: element.isHighlighted
+  setData(data: ArrayElement[], showAsChars: boolean = false, separators?: VisualizationSeparators) {
+    this.currentData = data.map(({ value, isDuplicate, isChecking, isHighlighted }) => ({
+      value,
+      isDuplicate,
+      isChecking,
+      isHighlighted
     }));
 
-    this.visualizeArray(this.currentData, { 
-      showAsChars, 
-      separators,
-      defaultColor: '#4CAF50'
-    });
+    this.visualizeArray(this.currentData, { showAsChars, separators, defaultColor: '#4CAF50' });
   }
 
   setDualData(data1: ArrayElement[], data2: ArrayElement[]) {
@@ -81,21 +72,17 @@ export class ArrayVisualizationService {
     this.visualizeDualArrays(data1, data2);
   }
 
-  async visualizeArray(
-    data: ArrayElement[] = this.currentData,
-    options: {
-      highlightColor?: string;
-      checkingColor?: string;
-      duplicateColor?: string;
-      defaultColor?: string;
-      showAsChars?: boolean;
-      separators?: VisualizationSeparators;
-    } = {}
-  ) {
+  async visualizeArray(data: ArrayElement[] = this.currentData, options: {
+    highlightColor?: string;
+    checkingColor?: string;
+    duplicateColor?: string;
+    defaultColor?: string;
+    showAsChars?: boolean;
+    separators?: VisualizationSeparators;
+  } = {}) {
     if (!this.container || !this.svg) return;
 
-    // Clear all existing content first
-    this.svg.selectAll('*').remove();
+    this.svg.selectAll('*').remove(); // Clear existing content
 
     const {
       highlightColor = '#ffd700',
@@ -106,18 +93,15 @@ export class ArrayVisualizationService {
       separators
     } = options;
 
-    // Calculate dimensions with fixed height
     const containerWidth = this.container.nativeElement.offsetWidth;
-    const containerHeight = 150; // Use fixed height
+    const containerHeight = 150; // Fixed height
     const padding = 40;
     const minSpacing = 5;
-    
-    // Calculate element width to fit container
+
     const availableWidth = containerWidth - padding;
     const elementWidth = Math.max(20, Math.min(50, (availableWidth / data.length) - minSpacing));
     const spacing = Math.max(minSpacing, Math.min(10, (availableWidth - (elementWidth * data.length)) / Math.max(1, data.length - 1)));
 
-    // Update SVG dimensions
     this.svg
       .attr('width', containerWidth)
       .attr('height', containerHeight)

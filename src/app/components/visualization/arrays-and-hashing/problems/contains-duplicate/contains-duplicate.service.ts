@@ -7,7 +7,7 @@ import { ArrayVisualizationService, ArrayElement } from '../../../../../services
 export class ContainsDuplicateService {
   private animationSpeed = 1000;
 
-  constructor(private visualizationService: ArrayVisualizationService) {}
+  constructor(private visualizationService: ArrayVisualizationService) { }
 
   async findDuplicates(
     data: ArrayElement[],
@@ -18,7 +18,7 @@ export class ContainsDuplicateService {
   ): Promise<void> {
     const seen = new Set();
     const seenNumbers: number[] = [];
-    
+
     for (let i = 0; i < data.length; i++) {
       if (isPaused()) {
         await onWaitForResume();
@@ -42,7 +42,7 @@ export class ContainsDuplicateService {
       onStepUpdate(`Added ${data[i].value} to seen numbers`);
       await this.visualizationService.clearChecking(i);
     }
-    
+
     onStepUpdate('No duplicates found in the array');
   }
 

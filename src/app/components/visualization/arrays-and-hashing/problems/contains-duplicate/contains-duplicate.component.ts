@@ -55,20 +55,20 @@ export class ContainsDuplicateComponent extends ArrayProblemComponent {
     });
   }
 
-  override handleInputChange(event: {key: string, value: string}) {
+  override handleInputChange(event: { key: string, value: string }) {
     this.inputValues[event.key] = event.value;
     this.reset();
   }
 
   protected async visualize() {
     if (this.isPlaying) return;
-    
+
     this.isPlaying = true;
     this.isPaused = false;
-    
+
     const data = this.algorithmService.parseInput(this.inputValues['array']);
     this.visualizationService.setData(data);
-    
+
     await this.algorithmService.findDuplicates(
       data,
       (step) => this.currentStep = step,
@@ -76,7 +76,7 @@ export class ContainsDuplicateComponent extends ArrayProblemComponent {
       () => this.isPaused,
       () => this.waitForResume()
     );
-    
+
     this.isPlaying = false;
   }
 

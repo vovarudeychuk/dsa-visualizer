@@ -53,25 +53,22 @@ Output: {{ example.output }}</pre>
                 <mat-form-field *ngFor="let input of problemData.inputs">
                   <mat-label>{{ input.label }}</mat-label>
                   <input matInput 
-                         [value]="inputValues[input.key] || ''"
-                         (ngModelChange)="onInputChange.emit({key: input.key, value: $event})"
-                         [(ngModel)]="inputValues[input.key]">
+                         [ngModel]="inputValues[input.key] || ''"
+                         (ngModelChange)="onInputChange.emit({key: input.key, value: $event})">
                 </mat-form-field>
 
                 <button mat-raised-button color="primary" 
-                      (click)="onPlay.emit()"
-                      [disabled]="isPlaying && !isPaused">
-                <mat-icon>{{(!isPlaying || isPaused) ? 'play_arrow' : 'pause'}}</mat-icon>
-                {{(!isPlaying || isPaused) ? 'Play' : 'Pause'}}
-              </button>
-              
-              <button mat-raised-button color="accent" (click)="onReset.emit()">
-                <mat-icon>restart_alt</mat-icon>
-                Reset
-              </button>
+                        (click)="onPlay.emit()"
+                        [disabled]="isPlaying && !isPaused">
+                  <mat-icon>{{(!isPlaying || isPaused) ? 'play_arrow' : 'pause'}}</mat-icon>
+                  {{(!isPlaying || isPaused) ? 'Play' : 'Pause'}}
+                </button>
+                
+                <button mat-raised-button color="accent" (click)="onReset.emit()">
+                  <mat-icon>restart_alt</mat-icon>
+                  Reset
+                </button>
               </div>
-              
-              
             </div>
 
             <div class="visualization-section">
