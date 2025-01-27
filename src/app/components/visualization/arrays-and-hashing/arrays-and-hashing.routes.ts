@@ -34,7 +34,7 @@ export const ARRAYS_AND_HASHING_ROUTES: Routes = [
     {
         path: 'encode-and-decode-strings',
         loadComponent: () => import('./problems/encode-and-decode-strings/encode-and-decode-strings.component')
-            .then(m => m.EncodeDecodeStringsComponent)
+            .then(m => m.EncodeAndDecodeStringsComponent)
     },
     {
         path: 'product-of-array-except-self',

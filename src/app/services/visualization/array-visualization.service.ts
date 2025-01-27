@@ -7,7 +7,9 @@ export interface ArrayElement {
   isChecking?: boolean;
   isHighlighted?: boolean;
   isBracket?: boolean;
-  // Add other states as needed for different problems
+  isSeparator?: boolean;
+  noBackground?: boolean;
+  separators?: VisualizationSeparators;
 }
 
 export interface VisualizationSeparators {
@@ -221,6 +223,7 @@ export class ArrayVisualizationService {
       .attr('rx', 4)  // Slightly rounded corners
       .attr('filter', 'drop-shadow(0px 2px 2px rgba(0,0,0,0.3))')
       .attr('fill', (d: ArrayElement) => {
+        if (d.isSeparator) return 'transparent';  // Just use isSeparator for empty nodes
         if (d.isDuplicate) return duplicateColor;
         if (d.isChecking) return checkingColor;
         if (d.isHighlighted) return highlightColor;
@@ -267,7 +270,8 @@ export class ArrayVisualizationService {
         .attr('height', elementWidth)
         .attr('rx', 5)
         .attr('fill', (d: ArrayElement) => {
-          if (d.isBracket) return '#888';  // Gray color for brackets
+          if (d.isSeparator) return 'transparent';  // Just use isSeparator for empty nodes
+          if (d.isBracket) return '#888';
           if (d.isDuplicate) return '#ff4444';
           if (d.isChecking) return '#ffd700';
           if (d.isHighlighted) return '#ffd700';

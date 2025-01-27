@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
-import { EncodeDecodeStringsService, StringElement } from './encode-and-decode-strings.service';
-import { EncodeDecodeStringsDataService } from './encode-and-decode-strings-data.service';
+import { ArrayProblemComponent } from '../../../../shared/base/array-problem.component';
+import { ArrayVisualizationService, ArrayElement } from '../../../../../services/visualization/array-visualization.service';
+import { EncodeAndDecodeStringsService } from './encode-and-decode-strings.service';
+import { EncodeAndDecodeStringsDataService } from './encode-and-decode-strings-data.service';
 
 @Component({
-  selector: 'app-encode-decode-strings',
+  selector: 'app-encode-and-decode-strings',
   standalone: true,
   imports: [
     CommonModule,
@@ -23,29 +25,15 @@ import { EncodeDecodeStringsDataService } from './encode-and-decode-strings-data
       (onReset)="reset()">
       
       <div visualization>
-        <div class="strings-container">
-          <div class="strings-list">
-            <div *ngFor="let str of strings" 
-                 class="string-element"
-                 [class.checking]="str.isChecking"
-                 [class.encoded]="str.isEncoded">
-              <div class="original-string">{{ str.value }}</div>
-              <div *ngIf="str.encodedValue" class="encoded-value">
-                {{ str.encodedValue }}
-              </div>
-            </div>
-          </div>
-          
-          <div *ngIf="encodedString" class="encoded-result">
-            <strong>Encoded:</strong> {{ encodedString }}
-          </div>
-          
-          <div *ngIf="isDecoding" class="decoded-list">
-            <strong>Decoded:</strong>
-            <div *ngFor="let str of decodedStrings" 
-                 class="string-element"
-                 [class.checking]="str.isChecking">
-              {{ str.value }}
+        <div #visualizationContainer class="visualization-container"></div>
+      </div>
+
+      <div step-info>
+        <div class="decoded-strings" *ngIf="decodedStrings.length > 0">
+          <strong>Decoded Strings:</strong>
+          <div class="string-list">
+            <div class="string-item" *ngFor="let str of decodedStrings">
+              "{{ str }}"
             </div>
           </div>
         </div>
@@ -53,119 +41,67 @@ import { EncodeDecodeStringsDataService } from './encode-and-decode-strings-data
     </app-problem>
   `,
   styles: [`
-    .strings-container {
-      padding: 20px;
-      font-family: monospace;
-    }
-
-    .strings-list {
+    .string-list {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-top: 8px;
     }
 
-    .string-element {
-      padding: 10px;
-      border: 1px solid #ccc;
+    .string-item {
+      background-color: #2c3e50;
+      color: white;
+      padding: 4px 8px;
       border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .checking {
-      /* background-color: #e3f2fd; */
-      border-color: #2196f3;
-    }
-
-    .encoded {
-      /* background-color: #f5f5f5; */
-    }
-
-    .encoded-value {
-      margin-top: 5px;
-      /* color: #2196f3; */
-      font-size: 0.9em;
-    }
-
-    .encoded-result {
-      margin: 20px 0;
-      padding: 10px;
-      /* background-color: #f5f5f5; */
-      border-radius: 4px;
-      word-break: break-all;
-    }
-
-    .decoded-list {
-      margin-top: 20px;
+      font-family: monospace;
     }
   `]
 })
-export class EncodeDecodeStringsComponent {
-  problemData: any;
-  inputValues: { [key: string]: string } = {
-    strings: 'Hello,World,How,Are,You'
-  };
-  isPlaying = false;
-  isPaused = false;
-  currentStep = '';
-  strings: StringElement[] = [];
-  encodedString = '';
-  decodedStrings: StringElement[] = [];
-  isDecoding = false;
+export class EncodeAndDecodeStringsComponent extends ArrayProblemComponent {
+  protected animationSpeed = 1000;
+  // @ViewChild('visualizationContainer') visualizationContainer!: ElementRef;
+  
+  encodedArray: ArrayElement[] = [];
+  decodedStrings: string[] = [];
 
   constructor(
-    private algorithmService: EncodeDecodeStringsService,
-    private dataService: EncodeDecodeStringsDataService
+    visualizationService: ArrayVisualizationService,
+    private algorithmService: EncodeAndDecodeStringsService,
+    private dataService: EncodeAndDecodeStringsDataService
   ) {
+    super(visualizationService);
+    this.inputValues = {
+      strings: 'Hello,World,LeetCode'
+    };
     this.dataService.getProblemData().subscribe(data => {
       this.problemData = data;
     });
-    this.showInitialStrings();
   }
 
-  async togglePlayPause() {
-    if (!this.isPlaying) {
-      this.visualize();
-    } else {
-      this.isPaused = !this.isPaused;
-    }
-  }
-
-  handleInputChange(values: { [key: string]: string }) {
-    this.inputValues = values;
-    this.showInitialStrings();
-  }
-
-  reset() {
-    this.isPlaying = false;
-    this.isPaused = false;
-    this.currentStep = '';
-    this.encodedString = '';
-    this.decodedStrings = [];
-    this.isDecoding = false;
-    this.showInitialStrings();
-  }
-
-  private async visualize() {
+  protected override async visualize() {
     if (this.isPlaying) return;
     
     this.isPlaying = true;
     this.isPaused = false;
+    this.decodedStrings = [];
+    
+    const strings = this.inputValues['strings'].split(',');
     
     // Encode
-    this.encodedString = await this.algorithmService.encodeStrings(
-      this.strings,
+    this.currentStep = 'Starting encoding process...';
+    this.encodedArray = await this.algorithmService.encode(
+      strings,
       (step) => this.currentStep = step,
       () => this.isPaused,
       () => this.waitForResume()
     );
 
-    await this.delay(1000);
-    
+    await this.visualizationService.delay(this.animationSpeed);
+
     // Decode
-    this.isDecoding = true;
-    this.decodedStrings = await this.algorithmService.decodeString(
-      this.encodedString,
+    this.currentStep = 'Starting decoding process...';
+    this.decodedStrings = await this.algorithmService.decode(
+      this.encodedArray,
       (step) => this.currentStep = step,
       () => this.isPaused,
       () => this.waitForResume()
@@ -174,24 +110,10 @@ export class EncodeDecodeStringsComponent {
     this.isPlaying = false;
   }
 
-  private showInitialStrings() {
-    this.strings = this.algorithmService.parseInput(this.inputValues['strings']);
+  protected showInitialArray() {
+    const strings = this.inputValues['strings'].split(',');
+    this.encodedArray = strings.flatMap(str => this.algorithmService.parseInput(str));
+    this.visualizationService.setData(this.encodedArray, true);
+    this.decodedStrings = [];
   }
-
-  private async waitForResume(): Promise<void> {
-    return new Promise((resolve) => {
-      const checkPaused = () => {
-        if (!this.isPaused) {
-          resolve();
-        } else {
-          setTimeout(checkPaused, 100);
-        }
-      };
-      checkPaused();
-    });
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-}
+} 

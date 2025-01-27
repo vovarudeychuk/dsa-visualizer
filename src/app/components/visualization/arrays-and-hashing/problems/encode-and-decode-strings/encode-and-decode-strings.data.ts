@@ -1,29 +1,19 @@
 import { ProblemData } from '../../../../shared/problem/problem.interface';
 
-export const ENCODE_DECODE_STRINGS_DATA: ProblemData = {
+export const ENCODE_AND_DECODE_STRINGS_DATA: ProblemData = {
   title: 'Encode and Decode Strings',
   inputs: [
     {
-      label: 'Enter strings (comma-separated)',
-      value: 'Hello,World,How,Are,You',
+      label: 'Strings (comma-separated)',
+      value: 'Hello,World,LeetCode',
       key: 'strings'
     }
   ],
-  description: `Design an algorithm to encode a list of strings to a string. The encoded string is then sent over the network and is decoded back to the original list of strings.
-
-Please implement encode and decode methods. The string may contain any possible characters out of 256 valid ASCII characters.`,
+  description: 'Design an algorithm to encode a list of strings to a string. The encoded string is then sent over the network and is decoded back to the original list of strings.',
   examples: [
     {
-      input: 'strs = ["Hello","World"]',
-      output: 'encoded = "5#Hello5#World" -> decoded = ["Hello","World"]'
-    },
-    {
-      input: 'strs = [""]',
-      output: 'encoded = "0#" -> decoded = [""]'
-    },
-    {
-      input: 'strs = ["Hello","World","How","Are","You"]',
-      output: 'encoded = "5#Hello5#World3#How3#Are3#You" -> decoded = ["Hello","World","How","Are","You"]'
+      input: '["Hello","World"]',
+      output: '["Hello","World"]',
     }
   ],
   solutionCode: `class Codec {
@@ -32,33 +22,30 @@ Please implement encode and decode methods. The string may contain any possible 
     }
     
     decode(s: string): string[] {
-        const result: string[] = [];
+        const result = [];
         let i = 0;
         
         while (i < s.length) {
-            // Find the '#' delimiter
-            const delimiterIndex = s.indexOf('#', i);
-            // Get the length of the next string
-            const length = parseInt(s.substring(i, delimiterIndex));
-            // Extract the string using the length
-            const str = s.substring(delimiterIndex + 1, delimiterIndex + 1 + length);
-            result.push(str);
-            // Move pointer to start of next length
-            i = delimiterIndex + 1 + length;
+            const j = s.indexOf('#', i);
+            const len = Number(s.slice(i, j));
+            result.push(s.slice(j + 1, j + 1 + len));
+            i = j + 1 + len;
         }
         
         return result;
     }
 }`,
-  timeComplexity: 'O(n) for both encode and decode, where n is total length of all strings',
+  timeComplexity: 'O(n) where n is the total length of all strings',
   spaceComplexity: 'O(n) to store the encoded/decoded strings',
   explanationSteps: [
-    'Encoding process:',
-    '- For each string, prepend its length followed by "#"',
-    '- Join all encoded strings together',
-    'Decoding process:',
-    '- Parse the length before each "#"',
-    '- Extract the string using the length',
-    '- Repeat until all strings are decoded'
+    'For encoding:',
+    '1. For each string, add its length followed by a delimiter',
+    '2. Append the actual string',
+    '3. Continue for all strings',
+    '',
+    'For decoding:',
+    '1. Read until delimiter to get string length',
+    '2. Extract the string using the length',
+    '3. Repeat until all strings are decoded'
   ]
-}; 
+};
