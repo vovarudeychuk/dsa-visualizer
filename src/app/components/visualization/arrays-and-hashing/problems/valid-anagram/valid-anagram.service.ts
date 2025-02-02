@@ -32,7 +32,7 @@ export class ValidAnagramService {
       }
 
       data1[i].isChecking = true;
-      this.visualizationService.setDualData([...data1], [...data2]);
+      this.visualizationService.setDualData([...data1], [...data2], { showAsChars: true });
       const char = String.fromCharCode(data1[i].value);
       const count = charMap.get(char) || 0;
       charMap.set(char, count + 1);
@@ -42,7 +42,7 @@ export class ValidAnagramService {
       
       data1[i].isChecking = false;
       data1[i].isHighlighted = true;
-      this.visualizationService.setDualData([...data1], [...data2]);
+      this.visualizationService.setDualData([...data1], [...data2], { showAsChars: true });
     }
 
     // Second pass: check characters from second string
@@ -52,14 +52,14 @@ export class ValidAnagramService {
       }
       
       data2[i].isChecking = true;
-      this.visualizationService.setDualData([...data1], [...data2]);
+      this.visualizationService.setDualData([...data1], [...data2], { showAsChars: true });
       const char = String.fromCharCode(data2[i].value);
       onStepUpdate(`Checking '${char}' in character count map`);
       await this.visualizationService.delay(this.animationSpeed);
 
       if (!charMap.has(char) || charMap.get(char) === 0) {
         data2[i].isDuplicate = true;
-        this.visualizationService.setDualData([...data1], [...data2]);
+        this.visualizationService.setDualData([...data1], [...data2], { showAsChars: true });
         onStepUpdate(`Character '${char}' not found in first string - not anagrams`);
         return;
       }
@@ -69,7 +69,7 @@ export class ValidAnagramService {
       onMapUpdate(charMap);
       data2[i].isChecking = false;
       data2[i].isHighlighted = true;
-      this.visualizationService.setDualData([...data1], [...data2]);
+      this.visualizationService.setDualData([...data1], [...data2], { showAsChars: true });
       await this.visualizationService.delay(this.animationSpeed/2);
     }
 

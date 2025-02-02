@@ -109,7 +109,7 @@ export class ValidAnagramComponent extends ArrayProblemComponent implements OnDe
     this.string1 = this.algorithmService.parseInput(this.inputValues['string1']);
     this.string2 = this.algorithmService.parseInput(this.inputValues['string2']);
     
-    this.visualizationService.setDualData(this.string1, this.string2);
+    this.visualizationService.setDualData(this.string1, this.string2, { showAsChars: true });
     
     await this.algorithmService.checkAnagram(
       this.string1,
@@ -127,7 +127,7 @@ export class ValidAnagramComponent extends ArrayProblemComponent implements OnDe
     this.string1 = this.algorithmService.parseInput(this.inputValues['string1']);
     this.string2 = this.algorithmService.parseInput(this.inputValues['string2']);
     this.charMap.clear();
-    this.visualizationService.setDualData(this.string1, this.string2);
+    this.visualizationService.setDualData(this.string1, this.string2, { showAsChars: true });
   }
 
   ngOnDestroy() {
