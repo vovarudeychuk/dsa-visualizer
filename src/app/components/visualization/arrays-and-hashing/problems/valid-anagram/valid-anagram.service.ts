@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ArrayVisualizationService, ArrayElement } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayElement } from '../../../../../services/visualization/types/visualization.types';
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +50,7 @@ export class ValidAnagramService {
       if (isPaused()) {
         await onWaitForResume();
       }
-
+      
       data2[i].isChecking = true;
       this.visualizationService.setDualData([...data1], [...data2]);
       const char = String.fromCharCode(data2[i].value);

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ArrayVisualizationService, ArrayElement } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayElement } from '../../../../../services/visualization/types/visualization.types';
 
 @Injectable({
   providedIn: 'root'

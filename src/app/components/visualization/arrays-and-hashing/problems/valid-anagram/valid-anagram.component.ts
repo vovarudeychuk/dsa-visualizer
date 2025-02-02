@@ -2,7 +2,8 @@ import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, OnDestroy } fr
 import { CommonModule } from '@angular/common';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
 import { ArrayProblemComponent } from '../../../../shared/base/array-problem.component';
-import { ArrayElement, ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayElement } from '../../../../../services/visualization/types/visualization.types';
 import { ValidAnagramService } from './valid-anagram.service';
 import { ValidAnagramDataService } from './valid-anagram-data.service';
 

@@ -2,7 +2,8 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
 import { ArrayProblemComponent } from '../../../../shared/base/array-problem.component';
-import { ArrayVisualizationService, ArrayElement } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayElement } from '../../../../../services/visualization/types/visualization.types';
 import { EncodeAndDecodeStringsService } from './encode-and-decode-strings.service';
 import { EncodeAndDecodeStringsDataService } from './encode-and-decode-strings-data.service';
 

@@ -2,7 +2,8 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProblemComponent } from '../../../../shared/problem/problem.component';
 import { ArrayProblemComponent } from '../../../../shared/base/array-problem.component';
-import { ArrayVisualizationService, ArrayElement } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayVisualizationService } from '../../../../../services/visualization/array-visualization.service';
+import { ArrayElement } from '../../../../../services/visualization/types/visualization.types';
 import { GroupAnagramsService, AnagramGroup } from './group-anagrams.service';
 import { GroupAnagramsDataService } from './group-anagrams-data.service';
 
